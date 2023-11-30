@@ -1,6 +1,12 @@
 from flask import Flask, render_template
+import requests
 app = Flask(__name__)
+response = requests.get(url="https://api.npoint.io/c790b4d5cab58020d391")
+data = response.json()
+posts = []
 
+for post in data:
+    post_obj = 
 
 @app.route("/")
 def home():

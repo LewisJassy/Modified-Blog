@@ -6,8 +6,8 @@ data = response.json()
 posts = []
 
 for post in data:
-    post["image_url"] = f"./static/assets/img/cactus{post['id']}.avif"
-    post_obj = (post["id"], post["title"], post["subtitle"], post["body"])
+    post["image_url"] = f"./static/assets/img/cactus.avif"
+    post_obj = (post["id"], post["title"], post["subtitle"], post["body"], post["image_url"])
     posts.append(post_obj)
 
 @app.route("/")

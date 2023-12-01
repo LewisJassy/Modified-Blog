@@ -6,11 +6,12 @@ data = response.json()
 posts = []
 
 for post in data:
-    post_obj = 
+    post_obj = (post["id"], post["title"], post["subtitle"], post["body"])
+    posts.append(post_obj)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", all_posts=posts)
 
 @app.route("/about")
 def about():

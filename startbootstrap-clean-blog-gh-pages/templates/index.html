@@ -19,9 +19,9 @@
                     <!-- Post preview-->
                     {% for post in all_posts %}
                     <div class="post-preview">
-                        <a href="post.html">
-                            <h2 class="post-title">{{post[1]}}</h2>
-                            <h3 class="post-subtitle">{{post.2}}</h3>
+                        <a href="{{ url_for('post', post_id=post[0]) }}">
+                            <h2 class="post-title">{{ post[1] }}</h2>
+                            <h3 class="post-subtitle">{{ post[2] }}</h3>
                         </a>
                         <p class="post-meta">
                             Posted by

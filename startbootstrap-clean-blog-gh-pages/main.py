@@ -6,7 +6,7 @@ data = response.json()
 posts = []
 
 for post in data:
-    post["image_url"] = f"./static/assets/img/cactus.avif"
+    post["image_url"] = f"./static/assets/img/cactus{post['id']}.avif"
     post_obj = (post["id"], post["title"], post["subtitle"], post["body"], post["image_url"])
     posts.append(post_obj)
 
@@ -29,7 +29,7 @@ def post(post_id):
     selected_post = next((post for post in posts if post[0] == post_id), None)
 
     if selected_post:
-        return render_template("post.html", post=selected_post)
+        return render_template("post.html", post=selected_post, image=selected_post[4])
     else:
         # Handle case when the post with the given ID is not found
         return render_template("not_found.html")

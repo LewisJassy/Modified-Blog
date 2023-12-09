@@ -34,4 +34,5 @@ def post(post_id):
         # Handle case when the post with the given ID is not found
         return render_template("not_found.html")
 
-
+if __name__ == "__main__":
+    app.run(debug=True)

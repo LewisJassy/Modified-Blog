@@ -5,12 +5,15 @@ from smtplib import SMTP
 def send_email(name, email, phone, message):
     my_email = "lewisjassy43@gmail.com"
     password = "lloiecglzazdbpgl"
-    with SMTP("smtp.gmail.com") as connection:
-        connection.starttls()
-        connection.login(user=my_email, password=password)
-        subject =  "Contact Form"
-        body = f"Name: {name}\nEmail: {email}\nPhone: {phone}\nMessage: {message}"
-        connection.sendmail(from_addr=my_email, to_addrs=my_email, msg=f"Subject:{subject}\n\n{body}")
+    try:
+        with SMTP("smtp.gmail.com") as connection:
+            connection.starttls()
+            connection.login(user=my_email, password=password)
+            subject =  "Contact Form"
+            body = f"Name: {name}\nEmail: {email}\nPhone: {phone}\nMessage: {message}"
+            connection.sendmail(from_addr=my_email, to_addrs=my_email, msg=f"Subject:{subject}\n\n{body}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
 
 
 app = Flask(__name__)

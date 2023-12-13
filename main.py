@@ -25,8 +25,8 @@ def contact():
         print(data["name"])
         print(data["email"])
         print(data["phone"])
-        print(data["message"])
-        return "<h1>Succefully sent your message</h1>"
+        message = data["message"]
+        return render_template("contact.html", message=message)
     return render_template("contact.html")
 
 @app.route("/post/<int:post_id>")

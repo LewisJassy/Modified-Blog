@@ -1,5 +1,18 @@
 from flask import Flask, render_template, request
 import requests
+from smtplib import SMTP
+
+def send_email(name, email, phone, message):
+    my_email = "lewisjassy43@gmail.com"
+    password = "lloiecglzazdbpgl"
+    with SMTP("smtp.gmail.com") as connection:
+        connection.starttls()
+        connection.login(user=my_email, password=password)
+        subject =  "Contact Form"
+        body = f"Name: {name}\nEmail: {email}\nPhone: {phone}\nMessage: {message}"
+        connection.sendmail(from_addr=my_email, to_addrs=my_email, msg=f"Subject:{subject}\n\n{body}")
+
+
 app = Flask(__name__)
 response = requests.get(url="https://api.npoint.io/c790b4d5cab58020d391")
 data = response.json()
@@ -22,11 +35,12 @@ def about():
 def contact():
     if request.method == "POST":
         data = request.form
-        print(data["name"])
-        print(data["email"])
-        print(data["phone"])
+        name = data["name"]
+        phone = data["phone"]
+        email = data["email"]
         message = data["message"]
-        return render_template("contact.html", message=message)
+        send_email(name, email, phone, message)
+        return render_template("contact.html", message="Successfully sent your message")
     return render_template("contact.html")
 
 @app.route("/post/<int:post_id>")

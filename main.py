@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 import requests
 from smtplib import SMTP
 
@@ -57,6 +57,10 @@ def post(post_id):
     else:
         # Handle case when the post with the given ID is not found
         return render_template("not_found.html")
+    
+@app.route('/static/<path:path>')
+def send_static(path):
+    return send_from_directory('static', path)
 
 if __name__ == "__main__":
     app.run(debug=False)

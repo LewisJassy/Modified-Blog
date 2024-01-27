@@ -1,66 +1,74 @@
-from flask import Flask, render_template, request, send_from_directory
-import requests
-from smtplib import SMTP
-
-def send_email(name, email, phone, message):
-    my_email = "lewisjassy43@gmail.com"
-    password = "lloiecglzazdbpgl"
-    try:
-        with SMTP("smtp.gmail.com") as connection:
-            connection.starttls()
-            connection.login(user=my_email, password=password)
-            subject =  "Contact Form"
-            body = f"Name: {name}\nEmail: {email}\nPhone: {phone}\nMessage: {message}"
-            connection.sendmail(from_addr=my_email, to_addrs=my_email, msg=f"Subject:{subject}\n\n{body}")
-    except Exception as e:
-        print(f"Error sending email: {e}")
+from flask import Flask, render_template, redirect, url_for
+from flask_bootstrap import Bootstrap5
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Integer, String, Text
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired, URL
+from flask_ckeditor import CKEditor, CKEditorField
+from datetime import date
 
 
 app = Flask(__name__)
-response = requests.get(url="https://api.npoint.io/c790b4d5cab58020d391")
-data = response.json()
-posts = []
+app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+Bootstrap5(app)
 
-for post in data:
-    post["image_url"] = f"./static/assets/img/cactus{post['id']}.avif"
-    post_obj = (post["id"], post["title"], post["subtitle"], post["body"], post["image_url"])
-    posts.append(post_obj)
+# CREATE DATABASE
+class Base(DeclarativeBase):
+    pass
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+db = SQLAlchemy(model_class=Base)
+db.init_app(app)
 
-@app.route("/")
-def home():
+
+# CONFIGURE TABLE
+class BlogPost(db.Model):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(250), unique=True, nullable=False)
+    subtitle: Mapped[str] = mapped_column(String(250), nullable=False)
+    date: Mapped[str] = mapped_column(String(250), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    author: Mapped[str] = mapped_column(String(250), nullable=False)
+    img_url: Mapped[str] = mapped_column(String(250), nullable=False)
+
+
+with app.app_context():
+    db.create_all()
+
+
+@app.route('/')
+def get_all_posts():
+    # TODO: Query the database for all the posts. Convert the data to a python list.
+    posts = db.session.execute(db.select(BlogPost)).scalars().all()
     return render_template("index.html", all_posts=posts)
 
+# TODO: Add a route so that you can click on individual posts.
+@app.route('/post/<int:post_id>')
+def show_post(post_id):
+    # TODO: Retrieve a BlogPost from the database based on the post_id
+    requested_post = db.get_or_404(BlogPost, post_id)
+    return render_template("post.html", post=requested_post)
+
+
+# TODO: add_new_post() to create a new blog post
+@app.route("/new-post")
+def add_new_post():
+    return render_template('make-post.html')
+# TODO: edit_post() to change an existing blog post
+
+# TODO: delete_post() to remove a blog post from the database
+
+# Below is the code from previous lessons. No changes needed.
 @app.route("/about")
 def about():
     return render_template("about.html")
 
-@app.route("/contact", methods=['POST', 'GET'])
+
+@app.route("/contact")
 def contact():
-    if request.method == "POST":
-        data = request.form
-        name = data["name"]
-        phone = data["phone"]
-        email = data["email"]
-        message = data["message"]
-        send_email(name, email, phone, message)
-        return render_template("contact.html", message="Successfully sent your message")
     return render_template("contact.html")
 
-@app.route("/post/<int:post_id>")
-def post(post_id):
-    # Fetch the specific post based on post_id
-    # You may want to modify this logic based on your data source
-    selected_post = next((post for post in posts if post[0] == post_id), None)
-
-    if selected_post:
-        return render_template("post.html", post=selected_post, image=selected_post[4])
-    else:
-        # Handle case when the post with the given ID is not found
-        return render_template("not_found.html")
-    
-@app.route('/static/<path:path>')
-def send_static(path):
-    return send_from_directory('static', path)
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True, port=5003)
